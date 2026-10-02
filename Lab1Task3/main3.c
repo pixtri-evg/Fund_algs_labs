@@ -1,4 +1,4 @@
-#include <functions.h>
+#include "functions3.h"
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
                 print_error(ERROR_INVALID_ARGS);
                 return ERROR_INVALID_ARGS;
             }
- 
+             
             long a, b;
             status = parse_long(argv[2], &a);
             if (status == SUCCESS)
@@ -77,15 +77,13 @@ int main(int argc, char *argv[]) {
                 return status;
             }
  
-            if (is_multiple) 
-                printf("%ld кратно %ld\n", a, b);
-            else 
-                printf("%ld не кратно %ld\n", a, b);
+            if (is_multiple) printf("%ld кратно %ld\n", a, b);
+            else printf("%ld не кратно %ld\n", a, b);
             break;
         }
  
         case 't': {
-            if (argc != 6) {
+            if (argc != 6) { 
                 print_error(ERROR_INVALID_ARGS);
                 return ERROR_INVALID_ARGS;
             }
@@ -100,19 +98,19 @@ int main(int argc, char *argv[]) {
                 return status;
             }
  
-            int is_triangle, is_right;
-            status = check_right_triangle(sides[0], sides[1], sides[2], eps, &is_triangle, &is_right);
+            int is_right;
+            status = check_right_triangle(sides[0], sides[1], sides[2], eps, &is_right);
             if (status != SUCCESS) {
                 print_error(status);
                 return status;
             }
- 
+
             if (is_right)
                 printf("Стороны %.6g, %.6g, %.6g образуют прямоугольный треугольник\n",
-                       sides[0], sides[1], sides[2]);
+                    sides[0], sides[1], sides[2]);
             else
                 printf("Стороны %.6g, %.6g, %.6g не образуют прямоугольный треугольник\n",
-                       sides[0], sides[1], sides[2]);
+                    sides[0], sides[1], sides[2]);
             break;
         }
  
@@ -120,6 +118,5 @@ int main(int argc, char *argv[]) {
             print_error(ERROR_INVALID_FLAG);
             return ERROR_INVALID_FLAG;
     }
- 
     return SUCCESS;
 }

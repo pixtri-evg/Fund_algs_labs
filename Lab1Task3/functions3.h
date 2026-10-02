@@ -47,16 +47,13 @@ static int is_positive(const double x, const double eps) { return x > eps; }
  
 status_code parse_flag(const char *input, char *flag) {
     if (input == NULL || flag == NULL) return ERROR_NULL_POINTER;
- 
-    if ((input[0] != '-' && input[0] != '/') || input[1] == '\0' || input[2] != '\0')
-        return ERROR_INVALID_FLAG;
+    if (input[0] != '-' && input[0] != '/') return ERROR_INVALID_FLAG;
  
     const char c = input[1];
-    if (c == 'q' || c == 'm' || c == 't') {
-        *flag = c;
-        return SUCCESS;
-    }
-    return ERROR_INVALID_FLAG;
+    if (c != 'q' && c != 'm' && c != 't') return ERROR_INVALID_FLAG;
+
+    *flag = c;
+    return SUCCESS;
 }
 
 status_code parse_double(const char *input, double *result) {
@@ -67,6 +64,7 @@ status_code parse_double(const char *input, double *result) {
     const double value = strtod(input, &endptr);
  
     if (endptr == input || *endptr != '\0') return ERROR_INVALID_NUMBER;
+    if (isnan(value)) return ERROR_INVALID_NUMBER; 
     if (!isfinite(value)) return ERROR_OVERFLOW;
  
     *result = value;
@@ -81,27 +79,26 @@ status_code parse_eps(const char *input, double *result) {
 }
 
 status_code parse_long(const char *input, long *result) {
-    if (input == NULL || result == NULL)
-        return ERROR_NULL_POINTER;
+    if (input == NULL || result == NULL) return ERROR_NULL_POINTER;
  
     int sign = 1;
     if (*input == '+' || *input == '-') {
         if (*input == '-') sign = -1;
         input++;
     }
-    if (*input == '\0') 
-        return ERROR_INVALID_NUMBER;
+    if (*input == '\0') return ERROR_INVALID_NUMBER;
  
     long value = 0;
     while (*input != '\0') {
-        if (!isdigit((unsigned char)*input)) 
-            return ERROR_INVALID_NUMBER;
-
+        if (!isdigit((unsigned char)*input)) return ERROR_INVALID_NUMBER;
         const int digit = *input - '0';
-        if (value > (LONG_MAX - digit) / 10) 
-            return ERROR_OVERFLOW;
+
+        if (sign == 1) {
+            if (value > (LONG_MAX - digit) / 10) return ERROR_OVERFLOW;
+        } else {
+            if (-value < (LONG_MIN + digit) / 10) return ERROR_OVERFLOW;
+        }
         value = value * 10 + digit;
-        input++;
     }
     *result = sign * value;
     return SUCCESS;
@@ -109,8 +106,7 @@ status_code parse_long(const char *input, long *result) {
 
 status_code solve_quadratic(const double a, const double b, const double c,
                              const double eps, int *root_count, double *x1, double *x2) {
-    if (root_count == NULL || x1 == NULL || x2 == NULL) 
-        return ERROR_NULL_POINTER;
+    if (root_count == NULL || x1 == NULL || x2 == NULL) return ERROR_NULL_POINTER;
  
     if (is_zero(a, eps)) {          
         if (is_zero(b, eps))
@@ -123,7 +119,9 @@ status_code solve_quadratic(const double a, const double b, const double c,
     }
  
     const double d = b * b - 4.0 * a * c;
-    if (fabs(d) ) {
+    if (!isfinite(d)) return ERROR_OVERFLOW;
+    
+    if (is_zero(d, eps)) {
         *x1 = -b / (2.0 * a);
         *root_count = 1;
     } else if (d > 0.0) {            
@@ -139,7 +137,7 @@ status_code solve_quadratic(const double a, const double b, const double c,
 
 status_code build_unique_permutations(const double coeffs[3], const double eps,
                                        double perms[6][3], int *count) {
-    if (perms == NULL || count == NULL) 
+    if (coeffs == NULL || perms == NULL || count == NULL) 
         return ERROR_NULL_POINTER;
  
     static const int table[6][3] = {
@@ -154,7 +152,7 @@ status_code build_unique_permutations(const double coeffs[3], const double eps,
  
         int already_added = 0;
         for (int j = 0; j < *count; j++)
-            if (is_zero(a - perms[j][0], eps) &&   /* [5] сравнение с уже добавленной тройкой */
+            if (is_zero(a - perms[j][0], eps) &&
                 is_zero(b - perms[j][1], eps) &&
                 is_zero(c - perms[j][2], eps)) {
                 already_added = 1;
@@ -171,43 +169,25 @@ status_code build_unique_permutations(const double coeffs[3], const double eps,
 }
 
 status_code check_multiplicity(const long a, const long b, int *is_multiple) {
-    if (is_multiple == NULL) 
-        return ERROR_NULL_POINTER;
-    if (a == 0 || b == 0) 
-        return ERROR_OUT_OF_DOMAIN; 
+    if (is_multiple == NULL) return ERROR_NULL_POINTER;
+    if (a == 0 || b == 0) return ERROR_OUT_OF_DOMAIN; 
     *is_multiple = (a % b == 0);
     return SUCCESS;
 }
 
-status_code check_right_triangle(double s1, double s2, double s3, const double eps,
-                                  int *is_triangle, int *is_right) {
-    if (is_triangle == NULL || is_right == NULL) return ERROR_NULL_POINTER;
+status_code check_right_triangle(double s1, double s2, double s3,
+                                  const double eps, int *is_right) {
+    if (is_right == NULL) return ERROR_NULL_POINTER;
 
-    if (s1 > s2) {
-        const double t = s1;
-        s1 = s2; s2 = t;
-    }
-    if (s2 > s3) {
-        const double t = s2;
-        s2 = s3; s3 = t; 
-    }
-    if (s1 > s2) {
-        const double t = s1;
-        s1 = s2; s2 = t; 
-    }
+    if (s1 > s2) { const double t = s1; s1 = s2; s2 = t; }
+    if (s2 > s3) { const double t = s2; s2 = s3; s3 = t; }
+    if (s1 > s2) { const double t = s1; s1 = s2; s2 = t; }
 
-    if (!is_positive(s1, eps)) {        /* [6] сторона не может быть <= 0 */
-        *is_triangle = 0;
+    if (!is_positive(s1, eps)) {   /* сторона <= 0 - треугольника точно нет */
         *is_right = 0;
         return SUCCESS;
     }
- 
-    *is_triangle = is_positive(s1 + s2 - s3, eps);  /* [7] неравенство треугольника */
-    if (!*is_triangle) {
-        *is_right = 0;
-        return SUCCESS;
-    }
- 
-    *is_right = is_zero(s1 * s1 + s2 * s2 - s3 * s3, eps);  /* [8] теорема Пифагора */
+
+    *is_right = is_zero(s1 * s1 + s2 * s2 - s3 * s3, eps);
     return SUCCESS;
 }

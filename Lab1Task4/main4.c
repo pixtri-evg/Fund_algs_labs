@@ -1,4 +1,4 @@
-#include "functions.h"
+#include "functions4.h"
 
 int main(int argc, char *argv[]) {
     if (argc < 3) {
@@ -9,23 +9,23 @@ int main(int argc, char *argv[]) {
     char action = '\0';
     int has_n = 0;
     status_code status = parse_flag(argv[1], &action, &has_n);
-    if (status != SUCCESS) {
-        print_error(status);
-        return status;
+    if (status != SUCCESS) { 
+        print_error(status); 
+        return status; 
     }
  
-    if (argc != (has_n ? 4 : 3)) {
-        print_error(ERROR_INVALID_ARGS);
-        return ERROR_INVALID_ARGS;
+    if (argc != (has_n ? 4 : 3)) { 
+        print_error(ERROR_INVALID_ARGS); 
+        return ERROR_INVALID_ARGS; 
     }
  
     const char *input_path = argv[2];
-    char *generated_path = NULL;      /* выделяется только если нет 'n' */
+    char *generated_path = NULL;
     const char *output_path = NULL;
  
     if (has_n) {
         output_path = argv[3];
-        if (strcmp(input_path, output_path) == 0) {   // если имя in = out то in затрется, тк out открыт на запись
+        if (strcmp(input_path, output_path) == 0) {
             print_error(ERROR_INVALID_ARGS);
             return ERROR_INVALID_ARGS;
         }
@@ -58,10 +58,10 @@ int main(int argc, char *argv[]) {
         case 'i': status = count_matches_per_line(in, out, is_latin_letter); break;
         case 's': status = count_matches_per_line(in, out, is_other_char); break;
         case 'a': status = replace_non_digits_hex(in, out); break;
-        default:  status = ERROR_INVALID_FLAG; break;   /* недостижимо: parse_flag уже проверил */
+        default:  status = ERROR_INVALID_FLAG; break;
     }
  
-    if (fclose(out) != 0 && status == SUCCESS) status = ERROR_IO;   /* ошибка сброса буфера на диск */
+    if (fclose(out) != 0 && status == SUCCESS) status = ERROR_IO;  
     fclose(in);
  
     if (status != SUCCESS) {
