@@ -1,4 +1,4 @@
-#include "lab1.h"
+#include "functions1.h"
 
 int main(int argc, char* argv[]) {
 
@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
     }
 
     int x = 0;
-    status_code status = string_to_int(num_str, &x);
+    status_code status = parse_int(num_str, &x);
     if (status != SUCCESS) {
         print_error(status);
         return status;
