@@ -19,14 +19,30 @@ typedef enum {
 
 void print_error(const status_code code) {
     switch (code) {
-        case ERROR_INVALID_ARGS:    printf("Ошибка: неверные аргументы функции\n"); break;
-        case ERROR_NULL_POINTER:    printf("Ошибка: нулевой указатель\n"); break;
-        case ERROR_INVALID_NUMBER:  printf("Ошибка: некорректная строка с числом\n"); break;
-        case ERROR_OVERFLOW:        printf("Ошибка: переполнение\n"); break;
-        case ERROR_DOMAIN:          printf("Ошибка: значение вне области определения\n"); break;
-        case ERROR_NO_ROOT:         printf("Ошибка: на интервале нет корня (знаки на концах совпадают)\n"); break;
-        case ERROR_ITERATIONS:      printf("Ошибка: превышено число итераций\n"); break;
-        default:                    printf("Неизвестная ошибка\n"); break;
+        case ERROR_INVALID_ARGS:    
+            printf("Ошибка: неверные аргументы функции\n");
+            break;
+        case ERROR_NULL_POINTER:    
+            printf("Ошибка: нулевой указатель\n"); 
+            break;
+        case ERROR_INVALID_NUMBER:  
+            printf("Ошибка: некорректная строка с числом\n");
+            break;
+        case ERROR_OVERFLOW:        
+            printf("Ошибка: переполнение\n");
+            break;
+        case ERROR_DOMAIN:         
+            printf("Ошибка: значение вне области определения\n");
+            break;
+        case ERROR_NO_ROOT:         
+            printf("Ошибка: на интервале нет корня (знаки на концах совпадают)\n");
+            break;
+        case ERROR_ITERATIONS:      
+            printf("Ошибка: превышено число итераций\n"); 
+            break;
+        default:                    
+            printf("Неизвестная ошибка\n"); 
+            break;
     }
 }
 

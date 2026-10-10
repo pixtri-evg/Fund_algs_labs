@@ -104,7 +104,7 @@ status_code replace_non_digits_hex(FILE *in, FILE *out) {
             if (fputc(ch, out) == EOF) return ERROR_IO;
         }
         else {
-            if (fprintf(out, "%02X", ch) < 0) return ERROR_IO;
+            if (fprintf(out, "%02X ", ch) < 0) return ERROR_IO;
         }
     }
     return ferror(in) ? ERROR_IO : SUCCESS;

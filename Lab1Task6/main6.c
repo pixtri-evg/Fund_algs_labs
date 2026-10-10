@@ -9,7 +9,7 @@ int main(void) {
     int found_count;
  
     printf("--- 1. Выпуклость ---\n");
-    if (!report(is_convex(&convex, eps2, 4, 0.0, 0.0, 2.0, 0.0, 2.0, 2.0, 0.0, 2.0)))
+    if (!report(is_convex(&convex, eps2, 4, 0.0, 0.0, 0.0, 1.0, 0.01, 0.99, 1.0, 1.0)))
         printf("Квадрат: %s\n", convex ? "выпуклый" : "невыпуклый");
     if (!report(is_convex(&convex, eps2, 5, 0.0, 0.0, 2.0, 0.0, 1.0, 1.0, 2.0, 2.0, 0.0, 2.0)))
         printf("Стрела: %s\n", convex ? "выпуклый" : "невыпуклый");
@@ -36,15 +36,15 @@ int main(void) {
     if (!report(bisection(&value, 0.0, 2.0, eps2, f1))) printf("x^2-2 на [0,2], eps2=1e-9: %.9f\n", value);
     if (!report(bisection(&value, 0.0, 1.0, eps2, f2))) printf("cos(x)-x на [0,1]: %.9f\n", value);
  
-    /* По одному примеру на каждый код ошибки */
+
     printf("\n--- Ошибки ---\n");
-    report(is_convex(NULL, eps2, 3, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0));            /* NULL_POINTER */
-    report(is_convex(&convex, eps2, 2, 0.0, 0.0, 1.0, 1.0));                    /* INVALID_ARGS: 2 вершины */
-    report(find_kaprekar(found, &found_count, 10, 1, "29ц8е40цк349"));         /* INVALID_NUMBER */
-    report(find_kaprekar(found, &found_count, 10, 1, "294849295899"));         /* OVERFLOW */
-    report(geom_mean(&value, 2, 4.0, -1.0));                                   /* DOMAIN */
-    report(bisection(&value, 3.0, 4.0, eps2, f1));                             /* NO_ROOT */
-    report(bisection(&value, 0.0, 2.0, 1e-30, f1));                            /* ITERATIONS */
+    report(is_convex(NULL, eps2, 3, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0));           
+    report(is_convex(&convex, eps2, 2, 0.0, 0.0, 1.0, 1.0));                
+    report(find_kaprekar(found, &found_count, 10, 1, "29ц8е40цк349"));       
+    report(find_kaprekar(found, &found_count, 10, 1, "294849295899"));         
+    report(geom_mean(&value, 2, 4.0, -1.0));                                  
+    report(bisection(&value, 3.0, 4.0, eps2, f1));                             
+    report(bisection(&value, 0.0, 2.0, 1e-30, f1));                           
  
     return SUCCESS;
 }
