@@ -50,7 +50,6 @@ void print_error(const status_code code) {
     }
 }
 
-
 int is_separator(const int c) {
     return c == ' ' || c == '\t' || c == '\n' || c == '\r';
 }

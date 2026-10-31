@@ -22,8 +22,8 @@ typedef struct {
 
 typedef struct {
     const char *path;
-    Match *matches;     /* динамический массив вхождений */
-    size_t count;       /* сколько вхождений найдено */
+    Match *matches;
+    size_t count;
 } FileResult;
 
 void print_error(const status_code code) {
@@ -78,7 +78,7 @@ status_code read_file_content(const char *path, char **text, size_t *length) {
             buffer = tmp;
             capacity = new_capacity;
         }
-        buffer[size] = c;
+        buffer[size] = (char)c;
         size++;
     }
     if (ferror(file)) {
@@ -92,14 +92,15 @@ status_code read_file_content(const char *path, char **text, size_t *length) {
     return SUCCESS;
 }
 
-int is_match_at(const char *content, const size_t length, const size_t pos,
-                const char *sub, const size_t sub_len) {
-    if (pos + sub_len > length) return 0;
+void build_prefix(const char *sub, const size_t sub_len, size_t *prefix) {
+    prefix[0] = 0;
+    size_t k = 0;
 
-    for (size_t i = 0; i < sub_len; i++) {
-        if (content[pos + i] != sub[i]) return 0;
+    for (size_t i = 1; i < sub_len; i++) {
+        while (k > 0 && sub[i] != sub[k]) k = prefix[k - 1];
+        if (sub[i] == sub[k]) k++;
+        prefix[i] = k;
     }
-    return 1;
 }
 
 status_code find_matches(const char *content, const size_t length, const char *sub,
@@ -113,20 +114,41 @@ status_code find_matches(const char *content, const size_t length, const char *s
     const size_t sub_len = strlen(sub);
     if (sub_len == 0) return SUCCESS;
 
+    size_t *prefix = (size_t*)malloc(sub_len * sizeof(size_t));
+    if (prefix == NULL) return ERROR_MEMORY;
+    build_prefix(sub, sub_len, prefix);
+
     Match *array = NULL;
     size_t size = 0;
     size_t capacity = 0;
 
     size_t line = 1;
     size_t column = 1;
+    size_t cur = 0;
+    size_t k = 0;
 
     for (size_t pos = 0; pos < length; pos++) {
-        if (is_match_at(content, length, pos, sub, sub_len)) {
+        while (k > 0 && content[pos] != sub[k]) k = prefix[k - 1];
+        if (content[pos] == sub[k]) k++;
+
+        if (k == sub_len) {
+            const size_t start = pos + 1 - sub_len;
+
+            while (cur < start) {
+                if (content[cur] == '\n') {
+                    line++;
+                    column = 1;
+                }
+                else column++;
+                cur++;
+            }
+
             if (size == capacity) {
-                size_t new_capacity = (capacity == 0) ? 4 : capacity * 2;
+                size_t new_capacity = capacity * 2 + 4;
                 Match *tmp = (Match*)realloc(array, new_capacity * sizeof(Match));
                 if (tmp == NULL) {
                     free(array);
+                    free(prefix);
                     return ERROR_MEMORY;
                 }
                 array = tmp;
@@ -135,14 +157,11 @@ status_code find_matches(const char *content, const size_t length, const char *s
             array[size].line = line;
             array[size].column = column;
             size++;
-        }
 
-        if (content[pos] == '\n') {
-            line++;
-            column = 1;
+            k = prefix[k - 1];
         }
-        else column++;
     }
+    free(prefix);
     *matches = array;
     *count = size;
     return SUCCESS;
@@ -156,12 +175,6 @@ void free_results(FileResult *results, const size_t count) {
     free(results);
 }
 
-/* Главная функция задания: ищет подстроку в нескольких файлах.
-   results   - сюда запишем динамический массив результатов (по одному на файл),
-   substring - искомая подстрока,
-   file_count - сколько путей к файлам передано,
-   ...       - сами пути к файлам (const char *), ровно file_count штук.
-   Ничего не печатает, только возвращает результат через параметры. */
 status_code search_in_files(FileResult **results, const char *substring,
                             const size_t file_count, ...) {
     if (results == NULL || substring == NULL) return ERROR_NULL_POINTER;

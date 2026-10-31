@@ -1,40 +1,50 @@
 #include "functions3.h"
 
-int main(int argc, char *argv[]) {
-    if (argc < 3 || argc > 5) {
-        print_error(ERROR_INVALID_ARGS);
-        return ERROR_INVALID_ARGS;
-    }
-
-    const char *substring = argv[1];
-    const size_t file_count = argc - 2;
-
+int main(void) {
     FileResult *results = NULL;
-    status_code status = SUCCESS;
+    status_code status;
 
-    /* Пути лежат в массиве argv, а вызвать функцию с "..." по массиву нельзя,
-       поэтому вызываем её отдельно для каждого количества файлов */
-    switch (file_count) {
-    case 1:
-        status = search_in_files(&results, substring, 1, argv[2]);
-        break;
-    case 2:
-        status = search_in_files(&results, substring, 2, argv[2], argv[3]);
-        break;
-    case 3:
-        status = search_in_files(&results, substring, 3, argv[2], argv[3], argv[4]);
-        break;
-    default:
-        status = ERROR_INVALID_ARGS;
-        break;
-    }
+    status = search_in_files(&results, "ab", 1, "a.txt");
+    if (status == SUCCESS) print_results(results, 1);
+    else print_error(status);
+    free_results(results, 1);
+    results = NULL;
 
-    if (status != SUCCESS) {
-        print_error(status);
-        return status;
-    }
+    status = search_in_files(&results, "aa", 1, "b.txt");
+    if (status == SUCCESS) print_results(results, 1);
+    else print_error(status);
+    free_results(results, 1);
+    results = NULL;
 
-    print_results(results, file_count);
-    free_results(results, file_count);
+    status = search_in_files(&results, "ab\ncd", 1, "c.txt");
+    if (status == SUCCESS) print_results(results, 1);
+    else print_error(status);
+    free_results(results, 1);
+    results = NULL;
+
+    status = search_in_files(&results, "ab\ncd", 1, "c.txt");
+    if (status == SUCCESS) print_results(results, 1);
+    else print_error(status);
+    free_results(results, 1);
+    results = NULL;
+
+    status = search_in_files(&results, "one two", 1, "d.txt");
+    if (status == SUCCESS) print_results(results, 1);
+    else print_error(status);
+    free_results(results, 1);
+    results = NULL;
+
+    status = search_in_files(&results, "ab", 3, "a.txt", "empty.txt", "b.txt");
+    if (status == SUCCESS) print_results(results, 3);
+    else print_error(status);
+    free_results(results, 3);
+    results = NULL;
+
+    status = search_in_files(&results, "ab", 1, "no_such_file.txt");
+    if (status == SUCCESS) print_results(results, 1);
+    else print_error(status);
+    free_results(results, 1);
+    results = NULL;
+
     return SUCCESS;
 }

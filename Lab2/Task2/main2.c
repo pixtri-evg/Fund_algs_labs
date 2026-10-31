@@ -1,5 +1,10 @@
 #include "functions2.h"
 
+const char *get_file_name(const char *path) {
+    const char *slash = strrchr(path, '/');
+    return (slash == NULL) ? path : slash + 1;
+}
+
 int main(int argc, char *argv[]) {
     if (argc != 4) {
         print_error(ERROR_INVALID_ARGS);
@@ -13,7 +18,7 @@ int main(int argc, char *argv[]) {
         return status;
     }
 
-    if (strcmp(argv[1], argv[3]) == 0) {
+    if (strcmp(get_file_name(argv[1]), get_file_name(argv[3])) == 0) {
         print_error(ERROR_SAME_FILE);
         return ERROR_SAME_FILE;
     }

@@ -80,7 +80,6 @@ status_code read_token(FILE *in, char **token) {
     if (buff == NULL) return ERROR_MEMORY;
 
     while (ch != EOF && !is_separator(ch)) {
-
         if (len + 1 >= capacity) {
             size_t new_capacity = capacity * 2;
             char *tmp = (char*)realloc(buff, new_capacity);

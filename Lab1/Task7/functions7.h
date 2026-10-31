@@ -81,12 +81,10 @@ status_code read_token(FILE *in, char **token) {
         buff[len++] = (char)ch;
         ch = fgetc(in);
     }
-
     if (ferror(in)) {
         free(buff);
         return ERROR_IO;
     }
-
     buff[len] = '\0';
     *token = buff;
     return SUCCESS;
@@ -128,7 +126,7 @@ status_code convert_token_to_codes(const char *token, const int base, char **res
     buff[0] = '\0';
     for (const char *p = token; *p != '\0'; p++) {
         char code[8];
-        status_code status = char_code_in_base((unsigned char)*p, base, code);
+        status_code status = char_code_in_base(*p, base, code);
         if (status != SUCCESS) {
             free(buff);
             return status;

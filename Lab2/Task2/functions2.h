@@ -53,7 +53,7 @@ status_code parse_flag(const char *str, char *order) {
     return SUCCESS;
 }
 
-static status_code read_line(FILE *file, char **line) {
+status_code read_line(FILE *file, char **line) {
     if (file == NULL || line == NULL) return ERROR_NULL_POINTER;
     *line = NULL;
 
@@ -87,7 +87,7 @@ static status_code read_line(FILE *file, char **line) {
     return SUCCESS;
 }
 
-static status_code split_line(char *line, char *words[], const size_t count) {
+status_code split_line(char *line, char *words[], const size_t count) {
     if (line == NULL || words == NULL) return ERROR_NULL_POINTER;
 
     size_t pos = 0;
@@ -104,7 +104,7 @@ static status_code split_line(char *line, char *words[], const size_t count) {
     return (line[pos] == '\0') ? SUCCESS : ERROR_INVALID_DATA;
 }
 
-static status_code parse_id(const char *str, unsigned int *id) {
+status_code parse_id(const char *str, unsigned int *id) {
     if (str == NULL || id == NULL) return ERROR_NULL_POINTER;
     if (str[0] == '\0') return ERROR_INVALID_DATA;
 
@@ -119,7 +119,7 @@ static status_code parse_id(const char *str, unsigned int *id) {
     return SUCCESS;
 }
 
-static int is_word(const char *str) {
+int is_word(const char *str) {
     if (str == NULL || str[0] == '\0') return 0;
     for (size_t i = 0; str[i] != '\0'; i++) {
         char c = str[i];
@@ -128,7 +128,7 @@ static int is_word(const char *str) {
     return 1;
 }
 
-static status_code parse_salary(const char *str, double *salary) {
+status_code parse_salary(const char *str, double *salary) {
     if (str == NULL || salary == NULL) return ERROR_NULL_POINTER;
 
     int has_digit = 0, dots = 0;
@@ -146,7 +146,7 @@ static status_code parse_salary(const char *str, double *salary) {
     return SUCCESS;
 }
 
-static status_code copy_str(const char *src, char **dest) {
+status_code copy_str(const char *src, char **dest) {
     if (src == NULL || dest == NULL) return ERROR_NULL_POINTER;
     *dest = (char*)malloc(strlen(src) + 1);
     if (*dest == NULL) return ERROR_MEMORY;
@@ -154,7 +154,7 @@ static status_code copy_str(const char *src, char **dest) {
     return SUCCESS;
 }
 
-static status_code parse_employee(char *line, Employee *emp) {
+status_code parse_employee(char *line, Employee *emp) {
     if (line == NULL || emp == NULL) return ERROR_NULL_POINTER;
 
     char *words[4];
@@ -194,7 +194,7 @@ void free_employees(Employee *list, const size_t count) {
     free(list);
 }
 
-static int is_blank(const char *line) {
+int is_blank(const char *line) {
     for (size_t i = 0; line[i] != '\0'; i++) {
         if (line[i] != ' ') return 0;
     }
@@ -222,7 +222,7 @@ status_code read_employees(FILE *file, Employee **list, size_t *count) {
             continue;
         }
         if (size == cap) {
-            size_t new_cap = (cap == 0) ? 4 : cap * 2;
+            size_t new_cap = cap * 2 + 4;
             Employee *tmp = (Employee*)realloc(arr, new_cap * sizeof(Employee));
             if (tmp == NULL) {
                 free(line);
@@ -245,7 +245,7 @@ status_code read_employees(FILE *file, Employee **list, size_t *count) {
     return SUCCESS;
 }
 
-static int compare_doubles(const double a, const double b, const double eps) {
+int compare_doubles(const double a, const double b, const double eps) {
     if (fabs(a - b) < eps) return 0;
     return (a < b) ? -1 : 1;
 }

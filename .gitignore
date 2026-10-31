@@ -1,0 +1,21 @@
+# Настройки IDE
+.idea/
+.vscode/
+*.iml
+
+# Скомпилированные файлы
+*.exe
+*.o
+*.out
+a.out
+main
+test
+program
+
+# Папки сборки CMake
+cmake-build-debug/
+cmake-build-release/
+
+# Системные файлы
+Thumbs.db
+.DS_Store
